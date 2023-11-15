@@ -1,0 +1,7 @@
+% MAIN SCRIPT FOR FOR CALLING FUNCTIONS/ORBIT CALULATIONS
+clear; clc; close all;
+
+run orbit_data.m
+x = DATA.OBJECT1.ECCENTRICITY;
+
+disp([DATA.OBJECT1])

@@ -1,0 +1,50 @@
+[{
+    "OBJECT1" : {
+        "NAME": "Intelsat II F-4",
+        "EPOCH": "15 November 2023 11:40:42",
+        "ECCENTRICITY":	0.0007920,
+        "INCLINATION": 0.8204,
+        "PERIGEE_HEIGHT": 35755,
+        "APOGEE_HEIGHT": 35822,
+        "RA_OF_ASC_NODE": 83.0952,
+        "ARG_OF_PERIGEE": 168.4676,
+        "REV_PER_DAY":	1.00264269,
+        "MEAN_ANOMALY_AT_EPOCH": 136.2128
+    },
+    "OBJECT2" : {
+        "NAME": "OV3-1",
+        "EPOCH": "15 November 2023 07:14:53",
+        "ECCENTRICITY":	0.0275213,
+        "INCLINATION": 5.1800,
+        "PERIGEE_HEIGHT": 30791,
+        "APOGEE_HEIGHT": 32895,
+        "RA_OF_ASC_NODE": 89.8518,
+        "ARG_OF_PERIGEE": 345.8650,
+        "REV_PER_DAY":	1.16183376,
+        "MEAN_ANOMALY_AT_EPOCH": 13.2681
+    },
+    "OBJECT3" : {
+        "NAME": "OV3-1",
+        "EPOCH": "15 November 2023 07:14:53",
+        "ECCENTRICITY":	0.0275213,
+        "INCLINATION": 5.1800,
+        "PERIGEE_HEIGHT": 30791,
+        "APOGEE_HEIGHT": 32895,
+        "RA_OF_ASC_NODE": 89.8518,
+        "ARG_OF_PERIGEE": 345.8650,
+        "REV_PER_DAY":	1.16183376,
+        "MEAN_ANOMALY_AT_EPOCH": 13.2681
+    },
+    "OBJECT4" : {
+        "NAME": "OV3-1",
+        "EPOCH": "15 November 2023 07:14:53",
+        "ECCENTRICITY":	0.0275213,
+        "INCLINATION": 5.1800,
+        "PERIGEE_HEIGHT": 30791,
+        "APOGEE_HEIGHT": 32895,
+        "RA_OF_ASC_NODE": 89.8518,
+        "ARG_OF_PERIGEE": 345.8650,
+        "REV_PER_DAY":	1.16183376,
+        "MEAN_ANOMALY_AT_EPOCH": 13.2681
+    }
+}]
