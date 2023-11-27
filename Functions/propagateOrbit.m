@@ -10,8 +10,8 @@ function [rPrime, vPrime] = propagateOrbit(r, v, epoch, endTime)
 
     [t,y] = ode45(@EOM, [t0 tf], [r;v], options);
 
-    rPrime = y(end, 1:3);
-    vPrime = y(end, 4:6);
+    rPrime = y(end, 1:3)';
+    vPrime = y(end, 4:6)';
 
 end
 
