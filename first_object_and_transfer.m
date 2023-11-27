@@ -83,6 +83,7 @@ function plotOrbit(r, v, tspan)
     xlabel("x, km")
     xlabel("y, km")
     xlabel("y, km")
+    axis equal
     hold on
 
 end
