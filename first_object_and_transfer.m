@@ -9,19 +9,31 @@ vvect_object1 = [2.15; -0.72; -2.44];
 epoch = 8.856990254250000e+09;
 
 % Propagate forwards 2 days
-dt = 2*24*60*60;
-[rvect_object1_end, vvect_object1_end] = propagateOrbit(rvect_object1,vvect_object1,epoch,epoch + dt);
-plotOrbit(rvect_object1, vvect_object1, [0 dt]);
+object1_depart_time = epoch + 2*24*60*60;
+[rvect_object1_depart, vvect_object1_depart] = propagateOrbit(rvect_object1,vvect_object1,epoch,object1_depart_time);
+plotOrbit(rvect_object1, vvect_object1, [0 2*24*60*60]);
 
-% Object 2
+% Lamberts to object 2
+% At epoch
 rvect_object2_new = [-1.35e4; 1.59e4; -2.29e4];
 vvect_object2_new = [-0.715; -3.095; -1.762];
 
-% lamberts
+lamberts12_time = 5*60*60;
+object2_arrive_time = object1_depart_time + lamberts12_time;
 
-lamberts12_time = 60*60;
-[vsc_object1_end, vsc_object2_arrive] = lamberts(rvect_object1_end, rvect_object2_new, lamberts12_time)
-plotOrbit(rvect_object1_end, vsc_object1_end, [0 lamberts12_time]);
+[rvect_object2_arrive, vvect_object2_arrive] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object2_arrive_time);
+
+% lamberts
+[vsc_object1_depart, vsc_object2_arrive] = lamberts(rvect_object1_depart, rvect_object2_arrive, lamberts12_time);
+plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
+
+% Propagate object 2 for 2 days
+object2_depart_time = object2_arrive_time + 2*24*60*60;
+[rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
+plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 2*24*60*60]);
+
+
+hold off
 
 
 
@@ -66,11 +78,12 @@ function plotOrbit(r, v, tspan)
 
     [t,y] = ode45(@EOM, tspan, [r;v], options);
 
-    figure
+    %figure
     plot3(y(:,1),y(:,2),y(:,3))
     xlabel("x, km")
     xlabel("y, km")
     xlabel("y, km")
+    hold on
 
 end
 
