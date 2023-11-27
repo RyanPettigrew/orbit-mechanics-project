@@ -6,7 +6,9 @@ function [rPrime, vPrime] = propagateOrbit(r, v, epoch, endTime)
     t0 = 0;
     tf = endTime - epoch;
 
-    [t,y] = ode45(@EOM, [t0 tf], [r;v]);
+    options = odeset('RelTol',1e-8,'AbsTol',1e-8); % Relative tolerance is the step in the function 
+
+    [t,y] = ode45(@EOM, [t0 tf], [r;v], options);
 
     rPrime = y(end, 1:3);
     vPrime = y(end, 4:6);

@@ -3,7 +3,9 @@ function plotOrbit(r, v, tspan)
     % plots orbit starting at given r,v vectors over given timespan [t0 tf]
     % r v column vectors
 
-    [t,y] = ode45(@EOM, tspan, [r;v]);
+    options = odeset('RelTol',1e-8,'AbsTol',1e-8); % Relative tolerance is the step in the function 
+
+    [t,y] = ode45(@EOM, tspan, [r;v], options);
 
     figure
     plot3(y(:,1),y(:,2),y(:,3))

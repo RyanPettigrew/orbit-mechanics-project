@@ -1,0 +1,4 @@
+clc
+clear all
+
+rvect_object1 = [-0.507e4; -3.496e4; 0.579e4]
