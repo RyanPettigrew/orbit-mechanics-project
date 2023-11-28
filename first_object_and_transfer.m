@@ -4,8 +4,8 @@ clear all
 global mu
 mu = 398600; % km3/s2
 
-rvect_object1 = [-0.507e4; -3.496e4; 0.579e4];
-vvect_object1 = [2.15; -0.72; -2.44];
+rvect_object1 = [-2.77e4; 2.26e4; 0.0448e4];
+vvect_object1 = [-2.11; -2.59; 0.0265];
 epoch = 8.856990254250000e+09;
 
 % Propagate forwards 2 days
@@ -15,10 +15,10 @@ plotOrbit(rvect_object1, vvect_object1, [0 2*24*60*60]);
 
 % Lamberts to object 2
 % At epoch
-rvect_object2_new = [-1.35e4; 1.59e4; -2.29e4];
-vvect_object2_new = [-0.715; -3.095; -1.762];
+rvect_object2_new = [-0.0737e4; 3.10e4; 0.00863e4];
+vvect_object2_new = [-3.62; -0.0609; -0.330];
 
-lamberts12_time = 5*60*60;
+lamberts12_time = 7*60*60;
 object2_arrive_time = object1_depart_time + lamberts12_time;
 
 [rvect_object2_arrive, vvect_object2_arrive] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object2_arrive_time);
