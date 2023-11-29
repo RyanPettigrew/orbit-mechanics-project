@@ -1,12 +1,29 @@
-function [v1, v2] = lamberts(r1, r2, dt)
+function [v1, v2] = lamberts(r1, r2, dt, sign)
     % Implement lambert's method to calc velocities on transfer
     global mu
     tol = 1e-8;
 
-    % find deltatheta, assume prograde
+    % find deltatheta
+
+    crossprod = cross(r1,r2);
+    z = crossprod(3);
+
+    if sign > 0
+        if z < 0
+            deltatheta = 2*pi - acos(dot(r1,r2)/norm(r1)/norm(r2));
+        else
+            deltatheta = acos(dot(r1,r2)/norm(r1)/norm(r2));
+        end
+    else
+        if z < 0
+            deltatheta = acos(dot(r1,r2)/norm(r1)/norm(r2));
+        else
+            deltatheta = 2*pi - acos(dot(r1,r2)/norm(r1)/norm(r2));
+        end
+    end
     
-    deltatheta = acos(dot(r1,r2)/(norm(r1)*norm(r2)));
-    deltatheta = asin(1*sqrt(1-cos(deltatheta)^2));
+    %deltatheta = acos(dot(r1,r2)/(norm(r1)*norm(r2)));
+    %deltatheta = asin(1*sqrt(1-cos(deltatheta)^2));
 
     % get A
     A = sqrt(norm(r1)*norm(r2))*sin(deltatheta)/sqrt(1 - cos(deltatheta));

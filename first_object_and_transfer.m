@@ -18,13 +18,15 @@ plotOrbit(rvect_object1, vvect_object1, [0 2*24*60*60]);
 rvect_object2_new = [-0.0737e4; 3.10e4; 0.00863e4];
 vvect_object2_new = [-3.62; -0.0609; -0.330];
 
-lamberts12_time = 7*60*60;
+lamberts12_time = 6*60*60;
 object2_arrive_time = object1_depart_time + lamberts12_time;
 
 [rvect_object2_arrive, vvect_object2_arrive] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object2_arrive_time);
 
 % lamberts
-[vsc_object1_depart, vsc_object2_arrive] = lamberts(rvect_object1_depart, rvect_object2_arrive, lamberts12_time);
+[vsc_object1_depart, vsc_object2_arrive] = lamberts(rvect_object1_depart, rvect_object2_arrive, lamberts12_time, -1);
+%[vsc_object1_depart, vsc_object2_arrive] = laberts_MW_that_works(rvect_object1_depart, rvect_object2_arrive, lamberts12_time, -1, mu);
+
 plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
 
 % Propagate object 2 for 2 days
@@ -32,6 +34,7 @@ object2_depart_time = object2_arrive_time + 2*24*60*60;
 [rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 2*24*60*60]);
 
+legend("Orbit 1", "Transfer 1-2", "Orbit 2")
 
 hold off
 
@@ -88,16 +91,33 @@ function plotOrbit(r, v, tspan)
 
 end
 
-function [v1, v2] = lamberts(r1, r2, dt)
+function [v1, v2] = lamberts(r1, r2, dt, sign)
 
     % Implement lambert's method to calc velocities on transfer
     global mu
     tol = 1e-8;
 
-    % find deltatheta, assume prograde
+    % find deltatheta
+
+    crossprod = cross(r1,r2);
+    z = crossprod(3);
+
+    if sign > 0
+        if z < 0
+            deltatheta = 2*pi - acos(dot(r1,r2)/norm(r1)/norm(r2));
+        else
+            deltatheta = acos(dot(r1,r2)/norm(r1)/norm(r2));
+        end
+    else
+        if z < 0
+            deltatheta = acos(dot(r1,r2)/norm(r1)/norm(r2));
+        else
+            deltatheta = 2*pi - acos(dot(r1,r2)/norm(r1)/norm(r2));
+        end
+    end
     
-    deltatheta = acos(dot(r1,r2)/(norm(r1)*norm(r2)));
-    deltatheta = asin(1*sqrt(1-cos(deltatheta)^2));
+    %deltatheta = acos(dot(r1,r2)/(norm(r1)*norm(r2)));
+    %deltatheta = asin(1*sqrt(1-cos(deltatheta)^2));
 
     % get A
     A = sqrt(norm(r1)*norm(r2))*sin(deltatheta)/sqrt(1 - cos(deltatheta));
@@ -157,6 +177,98 @@ function C = stumpfC_trig(z)
     end
 end
 function S = stumpfS_trig(z)
+    if z > 0
+        S = (sqrt(z) - sin(sqrt(z)))/(sqrt(z))^3;
+    elseif z < 0
+        S = (sinh(sqrt(-z)) - sqrt(-z))/(sqrt(-z))^3;
+    else
+        S = 1/6;
+    end
+end
+
+function [v_1,v_2] = laberts_MW_that_works(r_1,r_2,tspan,sign,mu)
+
+% shall utilize lamberts method to find the velocity 
+
+tol = 10^(-7) ;
+
+% finding z of r1 x r2
+rcross = cross(r_1,r_2);
+z_12 = rcross(3);
+
+% Calculate magnitudes of r1 and r2
+r_1_mag = norm(r_1) ;
+r_2_mag = norm(r_2) ;
+
+% obtaining theta
+
+if sign > 0
+    if z_12 < 0
+        theta = 360 - acosd(dot(r_1,r_2)/r_1_mag/r_2_mag);
+    else
+        theta = acosd(dot(r_1,r_2)/r_1_mag/r_2_mag);
+    end
+else
+    if z_12 < 0
+        theta = acosd(dot(r_1,r_2)/r_1_mag/r_2_mag);
+    else
+        theta = 360 - acosd(dot(r_1,r_2)/r_1_mag/r_2_mag);
+    end
+end
+
+ A = sind(theta) * sqrt((r_1_mag*r_2_mag) / (1-cosd(theta))) ;
+
+y_fun =@(z) r_1_mag + r_2_mag + A*((z*stumpS(z)-1)/(sqrt(stumpC(z)))) ;
+w_fun =@(z) sqrt(y_fun(z)/stumpC(z)) ;
+looper_fun =@(z) (((w_fun(z))^(3))*stumpS(z))/(sqrt(mu)) + (A*sqrt(y_fun(z)))/(sqrt(mu)) ;
+
+% Bi-section
+
+z_upper = 4*pi^2 ;
+z_lower = -4*pi^2 ;
+z = (z_upper+z_lower) /2 ;
+
+y = y_fun(z) ;
+w = w_fun(z) ;
+looper = looper_fun(z) ;
+
+while abs(looper - tspan) > tol
+    z = (z_upper+z_lower) /2 ;
+    y = y_fun(z) ;
+    w = w_fun(z) ;
+    looper = looper_fun(z) ;
+
+    if looper <= tspan
+        z_lower = z ;
+    else
+        z_upper = z;
+    end
+    
+end
+
+% happy face
+
+f = 1 - y/r_1_mag ;
+d_f = sqrt(mu*y/stumpC(z))*(z*stumpS(z)-1)/r_1_mag/r_2_mag ;
+g = A*sqrt(y/mu) ;
+d_g = 1 - y/r_2_mag ;
+
+v_1 = (1/g)*(r_2 - (f*r_1)) ; 
+v_2 = d_f*r_1+(d_g*v_1) ; 
+
+end
+
+% Stumpf function trig formulations
+function C = stumpC(z)
+    if z > 0
+        C = (1 - cos(sqrt(z)))/z;
+    elseif z < 0
+        C = (cosh(sqrt(-z)) - 1)/(-z);
+    else
+        C = 1/2;
+    end
+end
+function S = stumpS(z)
     if z > 0
         S = (sqrt(z) - sin(sqrt(z)))/(sqrt(z))^3;
     elseif z < 0
