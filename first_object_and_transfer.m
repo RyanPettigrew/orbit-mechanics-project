@@ -29,7 +29,7 @@ object2_arrive_time = object1_depart_time + lamberts12_time;
 plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
 
 % Propagate object 2 for 2 days
-object2_wait_time = 2*24*60*60 + 2*60*60;
+object2_wait_time = 2*24*60*60 + 2.2*60*60;
 object2_depart_time = object2_arrive_time + object2_wait_time;
 [rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
@@ -38,6 +38,9 @@ legend("Orbit 1", "Transfer 1-2", "Orbit 2")
 
 hold off
 
+disp("Object 1 departure burn: " + norm(vsc_object1_depart - vvect_object1_depart) + " km/s")
+disp("Object 2 arrival burn: " + norm(vsc_object2_arrive - vvect_object2_arrive) + " km/s")
+
 % Transfer 2
 figure
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
@@ -45,7 +48,7 @@ plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
 % Lamberts to object 3
 
 
-lamberts23_time = 3.096*60*60;
+lamberts23_time = 3.12*60*60; 
 object3_arrive_time = object2_depart_time + lamberts23_time;
 
 [rvect_object3_arrive, vvect_object3_arrive] = propagateOrbit(rvect_object3_new,vvect_object3_new,epoch,object3_arrive_time);
@@ -60,7 +63,9 @@ object3_depart_time = object3_arrive_time + 2*24*60*60;
 [rvect_object3_depart, vvect_object3_depart] = propagateOrbit(rvect_object3_arrive,vvect_object3_arrive,object3_arrive_time,object3_depart_time);
 plotOrbit(rvect_object3_arrive, vvect_object3_arrive, [0 2*24*60*60]);
 
-norm(vsc_object3_arrive - vvect_object3_arrive)
+disp("Object 2 departure burn: " + norm(vsc_object2_depart - vvect_object2_depart) + " km/s")
+disp("Object 3 arrival burn: " + norm(vsc_object3_arrive - vvect_object3_arrive) + " km/s")
+
 
 legend("Orbit 2", "Transfer 2-3", "Orbit 3")
 
