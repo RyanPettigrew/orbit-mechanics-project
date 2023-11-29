@@ -75,8 +75,8 @@ vvect = vvect_object2;
 initialstate = [rvect vvect]; % state vector
 options = odeset('RelTol',1e-8,'AbsTol',1e-8); % Relative tolerance is the step in the function 
 [tnew,statenew] = ode45(@airplane, timespan, initialstate, options, mu_earth);
-rvect_object2_new = [statenew(end,1) statenew(end,2) statenew(end,3)];
-vvect_object2_new = [statenew(end,4) statenew(end,5) statenew(end,6)];
+rvect_object2_new = [statenew(end,1); statenew(end,2); statenew(end,3)];
+vvect_object2_new = [statenew(end,4); statenew(end,5); statenew(end,6)];
 r_object2 = norm([statenew(end,1) statenew(end,2) statenew(end,3)]); % New position magnitude
 v_object2 = norm([statenew(end,4) statenew(end,5) statenew(end,6)]);% New velocity magnitude
 
@@ -117,8 +117,8 @@ vvect = vvect_object3;
 initialstate = [rvect vvect]; % state vector
 options = odeset('RelTol',1e-8,'AbsTol',1e-8); % Relative tolerance is the step in the function 
 [tnew,statenew] = ode45(@airplane, timespan, initialstate, options, mu_earth);
-rvect_object3_new = [statenew(end,1) statenew(end,2) statenew(end,3)];
-vvect_object3_new = [statenew(end,4) statenew(end,5) statenew(end,6)];
+rvect_object3_new = [statenew(end,1); statenew(end,2); statenew(end,3)];
+vvect_object3_new = [statenew(end,4); statenew(end,5); statenew(end,6)];
 r_object3 = norm([statenew(end,1) statenew(end,2) statenew(end,3)]); % New position magnitude
 v_object3 = norm([statenew(end,4) statenew(end,5) statenew(end,6)]);% New velocity magnitude
 
@@ -159,8 +159,8 @@ vvect = vvect_object4;
 initialstate = [rvect vvect]; % state vector
 options = odeset('RelTol',1e-8,'AbsTol',1e-8); % Relative tolerance is the step in the function 
 [tnew,statenew] = ode45(@airplane, timespan, initialstate, options, mu_earth);
-rvect_object4_new = [statenew(end,1) statenew(end,2) statenew(end,3)];
-vvect_object4_new = [statenew(end,4) statenew(end,5) statenew(end,6)];
+rvect_object4_new = [statenew(end,1); statenew(end,2); statenew(end,3)];
+vvect_object4_new = [statenew(end,4); statenew(end,5); statenew(end,6)];
 r_object4 = norm([statenew(end,1) statenew(end,2) statenew(end,3)]); % New position magnitude
 v_object4 = norm([statenew(end,4) statenew(end,5) statenew(end,6)]); % New velocity magnitude
 
