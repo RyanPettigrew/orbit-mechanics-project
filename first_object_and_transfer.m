@@ -119,6 +119,7 @@ function plotOrbit(r, v, tspan)
     xlabel("y, km")
     axis equal
     hold on
+    grid on;
 
 end
 

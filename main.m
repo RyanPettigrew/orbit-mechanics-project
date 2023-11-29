@@ -3,6 +3,10 @@
 clear; clc; close all;
 
 run orbit_data.m
+% run Time_orbits_project.m
+run Orbits_propagations_orbits_project.m
+run first_object_and_transfer.m
+
 
 % These both do the same thing
 disp(OBJECT1); 
