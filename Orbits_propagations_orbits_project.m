@@ -5,6 +5,8 @@
 format long
 clc; clear all; close all;
 mu_earth = 398600; % km3/s2
+global mu
+mu = mu_earth;
 
 %% Object 1: Start time is the epoch
 % Julien Date of Object 1
@@ -18,6 +20,7 @@ sec = 42;
 
 [JD] = julian_date(Y,M,D,hour,min,sec);
 JD_seconds_object1 = JD*3600;
+epoch = JD_seconds_object1;
 
 % r and v vector to get COEs
 %coe = [h, e, RA, inc, w, TA, a];

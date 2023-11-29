@@ -1,12 +1,12 @@
-clc
-clear all
+%clc
+%clear all
 
-global mu
-mu = 398600; % km3/s2
+%global mu
+%mu = 398600; % km3/s2
 
-rvect_object1 = [-2.77e4; 2.26e4; 0.0448e4];
-vvect_object1 = [-2.11; -2.59; 0.0265];
-epoch = 8.856990254250000e+09;
+%rvect_object1 = [-2.77e4; 2.26e4; 0.0448e4];
+%vvect_object1 = [-2.11; -2.59; 0.0265];
+%epoch = 8.856990254250000e+09;
 
 % Propagate forwards 2 days
 object1_depart_time = epoch + 2*24*60*60;
@@ -186,94 +186,3 @@ function S = stumpfS_trig(z)
     end
 end
 
-function [v_1,v_2] = laberts_MW_that_works(r_1,r_2,tspan,sign,mu)
-
-% shall utilize lamberts method to find the velocity 
-
-tol = 10^(-7) ;
-
-% finding z of r1 x r2
-rcross = cross(r_1,r_2);
-z_12 = rcross(3);
-
-% Calculate magnitudes of r1 and r2
-r_1_mag = norm(r_1) ;
-r_2_mag = norm(r_2) ;
-
-% obtaining theta
-
-if sign > 0
-    if z_12 < 0
-        theta = 360 - acosd(dot(r_1,r_2)/r_1_mag/r_2_mag);
-    else
-        theta = acosd(dot(r_1,r_2)/r_1_mag/r_2_mag);
-    end
-else
-    if z_12 < 0
-        theta = acosd(dot(r_1,r_2)/r_1_mag/r_2_mag);
-    else
-        theta = 360 - acosd(dot(r_1,r_2)/r_1_mag/r_2_mag);
-    end
-end
-
- A = sind(theta) * sqrt((r_1_mag*r_2_mag) / (1-cosd(theta))) ;
-
-y_fun =@(z) r_1_mag + r_2_mag + A*((z*stumpS(z)-1)/(sqrt(stumpC(z)))) ;
-w_fun =@(z) sqrt(y_fun(z)/stumpC(z)) ;
-looper_fun =@(z) (((w_fun(z))^(3))*stumpS(z))/(sqrt(mu)) + (A*sqrt(y_fun(z)))/(sqrt(mu)) ;
-
-% Bi-section
-
-z_upper = 4*pi^2 ;
-z_lower = -4*pi^2 ;
-z = (z_upper+z_lower) /2 ;
-
-y = y_fun(z) ;
-w = w_fun(z) ;
-looper = looper_fun(z) ;
-
-while abs(looper - tspan) > tol
-    z = (z_upper+z_lower) /2 ;
-    y = y_fun(z) ;
-    w = w_fun(z) ;
-    looper = looper_fun(z) ;
-
-    if looper <= tspan
-        z_lower = z ;
-    else
-        z_upper = z;
-    end
-    
-end
-
-% happy face
-
-f = 1 - y/r_1_mag ;
-d_f = sqrt(mu*y/stumpC(z))*(z*stumpS(z)-1)/r_1_mag/r_2_mag ;
-g = A*sqrt(y/mu) ;
-d_g = 1 - y/r_2_mag ;
-
-v_1 = (1/g)*(r_2 - (f*r_1)) ; 
-v_2 = d_f*r_1+(d_g*v_1) ; 
-
-end
-
-% Stumpf function trig formulations
-function C = stumpC(z)
-    if z > 0
-        C = (1 - cos(sqrt(z)))/z;
-    elseif z < 0
-        C = (cosh(sqrt(-z)) - 1)/(-z);
-    else
-        C = 1/2;
-    end
-end
-function S = stumpS(z)
-    if z > 0
-        S = (sqrt(z) - sin(sqrt(z)))/(sqrt(z))^3;
-    elseif z < 0
-        S = (sinh(sqrt(-z)) - sqrt(-z))/(sqrt(-z))^3;
-    else
-        S = 1/6;
-    end
-end
