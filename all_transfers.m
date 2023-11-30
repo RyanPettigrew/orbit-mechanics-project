@@ -223,3 +223,103 @@ function S = stumpfS_trig(z)
     end
 end
 
+function coe = vector2coe(R, V, mu)
+% Computes the classical orbital elements (COEs)
+% Pass in the state vector (R,V) and mu
+r = norm(R);
+v = norm(V);
+vr = dot(R,V)/r;
+H = cross(R,V);
+h = norm(H);
+% Uses Eq 4.7:
+inc = acos(H(3)/h);
+% Uses Eq 4.8:
+N = cross([0 0 1],H);
+n = norm(N);
+% Uses Eq 4.9:
+if n ~= 0
+    RA = acos(N(1)/n);
+    if N(2) < 0
+        RA = 2*pi - RA;
+    end
+else
+    RA = 0;
+end
+%Eq 4.10:
+E = 1/mu*((v^2 - mu/r)*R - r*vr*V);
+e = norm(E);
+% Small number below ecc to be zero
+eps_min = 1.e-10;
+%Eq 4.12 (for case e = 0):
+if n ~= 0
+    if e > eps_min
+        w = acos(dot(N,E)/n/e);
+        if E(3) < 0
+            w = 2*pi - w;
+        end
+    else
+        w = 0;
+    end
+else
+    w = 0;
+end
+% Uses Eq 4.13a (for case e = 0):
+if e > eps_min
+    TA = acos(dot(E,R)/e/r);
+    if vr < 0
+        TA = 2*pi - TA;
+    end
+else
+    cp = cross(N,R);
+    if cp(3) >= 0
+        TA = acos(dot(N,R)/n/r);
+    else
+        TA = 2*pi - acos(dot(N,R)/n/r);
+    end
+end
+%Eq 4.62 (when a < 0 for a hyperbola):
+a=h^2/mu/(1 - e^2);
+% Return elements in COE vector
+coe = [h, e, RA, inc, w, TA, a];
+end
+
+function [delta_v] = inc_RAAN_change(v_object3,inc_object3,inc_object4,RAAN_object3,RAAN_object4)
+inc_initial = inc_object3;
+inc_final = inc_object4;
+RAAN_initial = RAAN_object3;
+RAAN_final = RAAN_object4;
+
+inc_change = abs(inc_initial - inc_final);
+RAAN_change = abs(RAAN_initial - RAAN_final);
+
+alpha = acos(cos(inc_initial)*cos(inc_final)+sin(inc_initial)*sin(inc_final)*cos(RAAN_change));
+delta_v = 2*(v_object3)*sin(alpha/2);
+end
+
+function [deltaVtotal,t] = hohmann(rp,ra)
+
+rp = zp + r_earth; % Radius of perigee [km]
+v1 = sqrt(mu_earth/rp); % Speed of og orbit; At LEO
+h1 = rp*v1;
+
+v3 = sqrt(mu_earth/ra); % Speed of final orbit; Should be slower than v1
+h3 = ra*v3;
+
+ecc = (ra - rp)/(rp + ra); % Should be an ellipse; eccentricity of the transfer orbit
+rat = ra;
+rf = ra;
+rpt = rp;
+h2 = sqrt(mu_earth*rpt*(1+ecc));
+Vpt = h2/rpt; % Speed at perigee of transfer orbit
+Vat = h2/rat; % Speed at apogee of transfer orbit; Slower than Vpt;
+
+deltaVi = Vpt - v1;
+deltaVf = v3 - Vat;
+deltaVtotal = deltaVi + deltaVf;
+disp('The total delta v is ' + string(deltaVtotal) + ' km/s')
+
+a = (rat + rpt)/2;
+T = ((2*pi)/sqrt(mu_earth))*a^(3/2);
+t = T/2; % Transfer time [s]
+t = t/60; % Transfer time [min]
+end
