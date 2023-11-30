@@ -1,19 +1,18 @@
-%clc
-%clear all
+clc
+clear all
 
 %global mu
-%mu = 398600; % km3/s2
+mu = 398600; % km3/s2
 
-%rvect_object1 = [-2.77e4; 2.26e4; 0.0448e4];
-%vvect_object1 = [-2.11; -2.59; 0.0265];
-%epoch = 8.856990254250000e+09;
-
+rvect_object1 = [-2.77e4;2.26e4;0.0448e4];
+vvect_object1 = [-2.11;-2.59;0.0265];
+epoch = 8.856990254250000e+09;
 % Propagate forwards 2 days
 object1_depart_time = epoch + 2*24*60*60;
 [rvect_object1_depart, vvect_object1_depart] = propagateOrbit(rvect_object1,vvect_object1,epoch,object1_depart_time);
 plotOrbit(rvect_object1, vvect_object1, [0 2*24*60*60]);
 
-% Lamberts to object 2
+%% Lamberts to object 2
 % At epoch
 %rvect_object2_new = [-0.0737e4; 3.10e4; 0.00863e4];
 %vvect_object2_new = [-3.62; -0.0609; -0.330];
@@ -45,7 +44,7 @@ disp("Object 2 arrival burn: " + norm(vsc_object2_arrive - vvect_object2_arrive)
 figure
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
 
-% Lamberts to object 3
+%% Lamberts to object 3
 
 
 lamberts23_time = 3.12*60*60; 
@@ -71,10 +70,42 @@ legend("Orbit 2", "Transfer 2-3", "Orbit 3")
 
 hold off
 
+%% Transfer to object 4
 
+% Inc and RAAN change
+coe_object3 = vector2coe(rvect_object3_depart, vvect_object3_depart,mu);
+inc_object3 = coe_object3(4);
+RAAN_object3 = coe_object3(3);
+v_object3 = norm(vvect_object3_depart);
 
+rvect_object4_start =  1.0e+02*[-4.299031324314775 1.923690022476296 7.777323084694023];
+vvect_object4_start = [-17.907795963779567 -7.063735680315943 -8.198682991422665];
+[rvect_object4, vvect_object4] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,object3_depart_time);
 
+coe_object4 = vector2coe(rvect_object4, vvect_object4,mu);
+inc_object4 = coe_object4(4);
+RAAN_object4 = coe_object4(3);
 
+[delta_v] = inc_RAAN_change(v_object3,inc_object3,inc_object4,RAAN_object3,RAAN_object4);
+% This calculates the new coes after the orbit at object 3 changes its inc
+% and RAAN
+
+coes_new = [coe_object3(1), coe_object3(2), coe_object4(3), coe_object4(4), coe_object3(5), coe_object3(6), coe_object3(7)];
+[rvect_orbit3_inc_raan_change, vvect_orbit3_inc_raan_change] = coes2vector(coes_new,mu); % This is our new r and v vector that has an inc and RAAN the same as object 4 but everything else the same as object 3
+
+% Hohmanns to get on same orbit
+rp = norm(rvect_orbit3_inc_raan_change);
+ra = norm(rvect_object4);
+ [deltaVtotal,t] = hohmann(rp,ra);
+
+time_after_hohmanns = object3_depart_time + t;
+
+% HELP: how do I find the r and v vector? [rvect_posthohmanns,vvect_post_hohmanns] = r_and_v_of_hohmanns(rp,coes_new,coes_object4)
+
+[rvect_object4_posthohmann, vvect_object4_posthohmann] = propagateOrbit(rvect_object4,vvect_object4,epoch,time_after_hohmanns);
+
+% Phasing maneuver
+% Currently editing [deltaVtotal,t] = phasing_maneuver()
 
 function [rPrime, vPrime] = propagateOrbit(r, v, epoch, endTime)
     % Harvey Perkins
@@ -107,7 +138,6 @@ function dy = EOM(t, y)
     dy(5,1) = -mu*y(2)/r^3;
     dy(6,1) = -mu*y(3)/r^3;
 end
-
 function plotOrbit(r, v, tspan)
     % Harvey Perkins
     % plots orbit starting at given r,v vectors over given timespan [t0 tf]
@@ -322,4 +352,57 @@ a = (rat + rpt)/2;
 T = ((2*pi)/sqrt(mu_earth))*a^(3/2);
 t = T/2; % Transfer time [s]
 t = t/60; % Transfer time [min]
+end
+
+function [rvect_posthohmanns,vvect_post_hohmanns] = r_and_v_of_hohmanns(rp,coes1,coes2)
+
+% Calculate r and v at perigee relative to:
+% The perifocal reference frame:
+% Perifocal frame: rx is just rp in the p direction
+ecc = coe(2)
+true_anomaly = %
+h = sqrt(rp*(mu_earth)*(1+ecc));
+rvect = (h^2/mu_earth)*(1/(1+ecc*cos(0)))*[cos(0);sin(0);0];
+disp('The r vector at the perifocal reference frame is ')
+disp(rvect)
+% True anomaly: 0 degrees (it's at perigee)
+vvect = (mu_earth/h)*[-sin(0); ecc+cos(0); 0];
+disp('The v vector at the perifocal reference frame is ')
+disp(vvect)
+[h, e, RA, inc, w, TA, a]
+% b. The geocentric equatorial frame:
+% C_ECI_PERI = R3(omega)*R1(inc)*R3(RAAN);
+Q_Xx = [(-sin(RAAN)*cos(inc)*sin(omega)+cos(RAAN)*cos(omega)) (-sin(RAAN)*cos(inc)*sin(omega)+sin(RAAN)*cos(omega)) (sin(RAAN)*sin(inc));(cos(RAAN)*cos(inc)*sin(omega)+sin(RAAN)*cos(omega)) (cos(RAAN)*cos(inc)*cos(omega)-sin(RAAN)*sin(omega)) (-cos(RAAN)*sin(inc));(sin(inc)*sin(omega)) (sin(inc)*cos(omega)) cos(inc)];
+disp('The r vector in the geocentric equatorial frame is ')
+rvect_ECI = Q_Xx*rvect
+disp(' km/s')
+disp('The v vector in the geocentric equatorial frame is ')
+vvect_ECI = Q_Xx*vvect
+end
+
+% Currently editing
+function [deltaVtotal] = phasing_maneuver()
+rp = 8100; % [km]
+ra = 18900; % [km]
+h = sqrt(2*mu_earth)*sqrt((rp*ra)/(rp + ra)); % Angular momentum of the orbit
+ecc1 = (ra - rp)/(ra + rp);
+a1 = (1/2)*(rp + ra);
+T1 = (2*pi)/(sqrt(mu_earth))*(a1^(3/2));
+true_anomaly_c = 150-45; % [degrees]
+true_anomaly_c = deg2rad(true_anomaly_c);
+E_c = 2*atan(sqrt((1-ecc1)/(1+ecc1))*tan(true_anomaly_c/2));
+t_bc = (T1/(2*pi))*(E_c - ecc1*sin(E_c));
+T2 = T1 - t_bc;
+a2 = (((sqrt(mu_earth))*T2)/(2*pi))^(2/3);
+% 2*a2 = rA + rD;
+rd = 2*a2 - rp;
+h2 = sqrt(2*mu_earth)*sqrt((rp*rd)/(rp + rd));
+V_b1 = h1/rp;
+V_b2 = h2/rp;
+delta_v_a1 = V_b2 - V_b1;
+delta_v_a1 = abs(delta_v_a1);
+
+delta_v_a2 = V_b1 - V_b2;
+delta_v_a2 = abs(delta_v_a2);
+deltaVtotal = delta_v_a1 + delta_v_a2;
 end
