@@ -104,7 +104,7 @@ ra = norm(rvect_object4);
 time_after_hohmanns = object3_depart_time + t;
 
 % HELP: how do I find the r and v vector? [rvect_posthohmanns,vvect_post_hohmanns] = r_and_v_of_hohmanns(rp,coes_new,coes_object4)
-
+[rvect_object4_orbit,vvect_object4_orbit] = r_and_v_of_hohmanns(rvect_object3,rvect_object4);
 [rvect_object4_posthohmann, vvect_object4_posthohmann] = propagateOrbit(rvect_object4,vvect_object4,epoch,time_after_hohmanns);
 
 % Phasing maneuver
@@ -357,30 +357,28 @@ t = T/2; % Transfer time [s]
 t = t/60; % Transfer time [min]
 end
 
-function [rvect_posthohmanns,vvect_post_hohmanns] = r_and_v_of_hohmanns(rp,coes1,coes2)
-
-% Calculate r and v at perigee relative to:
-% The perifocal reference frame:
-% Perifocal frame: rx is just rp in the p direction
-ecc = coe(2)
-true_anomaly = %
-h = sqrt(rp*(mu_earth)*(1+ecc));
-rvect = (h^2/mu_earth)*(1/(1+ecc*cos(0)))*[cos(0);sin(0);0];
-disp('The r vector at the perifocal reference frame is ')
-disp(rvect)
-% True anomaly: 0 degrees (it's at perigee)
-vvect = (mu_earth/h)*[-sin(0); ecc+cos(0); 0];
-disp('The v vector at the perifocal reference frame is ')
-disp(vvect)
-[h, e, RA, inc, w, TA, a]
-% b. The geocentric equatorial frame:
-% C_ECI_PERI = R3(omega)*R1(inc)*R3(RAAN);
-Q_Xx = [(-sin(RAAN)*cos(inc)*sin(omega)+cos(RAAN)*cos(omega)) (-sin(RAAN)*cos(inc)*sin(omega)+sin(RAAN)*cos(omega)) (sin(RAAN)*sin(inc));(cos(RAAN)*cos(inc)*sin(omega)+sin(RAAN)*cos(omega)) (cos(RAAN)*cos(inc)*cos(omega)-sin(RAAN)*sin(omega)) (-cos(RAAN)*sin(inc));(sin(inc)*sin(omega)) (sin(inc)*cos(omega)) cos(inc)];
-disp('The r vector in the geocentric equatorial frame is ')
-rvect_ECI = Q_Xx*rvect
-disp(' km/s')
-disp('The v vector in the geocentric equatorial frame is ')
-vvect_ECI = Q_Xx*vvect
+function [rvect,vvect] = r_and_v_of_hohmanns(rvect_object3,rvect_object4)
+% First burn
+rvect_object3 = [-2.77;2.26;0.0448];
+rvect_object4 = [-4.299031324314775;1.923690022476296;7.777323084694023];
+mu_earth = 98600;
+r1 = norm(rvect_object3);
+r2 = norm(rvect_object4);
+at = (r1 + r2)/2;
+vt1 = sqrt(mu_earth*((2/r1) - (1/at)));
+h = r1*vt1;
+true_anomaly_t = pi;
+rt = r2;
+rvect_t = rt*[cos(true_anomaly_t),sin(true_anomaly_t),0]
+vvect_t = (h/rt)*[-sin(true_anomaly_t),cos(true_anomaly_t),0]
+% Final burn
+v2 = sqrt(mu_earth*((2/r2) - (1/at)));
+% at arrival true_anomaly = 0;
+true_anomaly_2 = 0;
+rvect_2 = r2*[cos(true_anomaly_2),sin(true_anomaly_2),0]
+vvect_2 = (h/r2)*[-sin(true_anomaly_2),cos(true_anomaly_2),0]
+rvect = rvect_2
+vvect = vvect_2 + vvect_t
 end
 
 % Currently editing
