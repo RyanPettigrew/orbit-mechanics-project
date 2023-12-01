@@ -115,10 +115,8 @@ coes_new = [coe_object3(1), coe_object3(2), coe_object4(3), coe_object4(4), coe_
 figure
 plotOrbit(rvect_object3_depart,vvect_object3_depart, [0 2*24*60*60]);
 hold on
-plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
+plotOrbit(rvect_orbit3_inc_raan_change, [0 2*24*60*60]);
 legend("Orbit 3", "Orbit 3 w/ Inc RAAN change")
-title('Inc and RAAN Change')
-grid on
 hold off
 
 % Hohmanns to get on same orbit
@@ -131,8 +129,6 @@ time_after_hohmanns = object3_depart_time + t;
 [rvect_object4_orbit,vvect_object4_orbit] = r_and_v_of_hohmanns(rvect_orbit3_inc_raan_change,rvect_object4_start);
 [rvect_object4_posthohmann, vvect_object4_posthohmann] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,time_after_hohmanns);
 
-figure
-plotOrbit(rvect_object2_depart, vsc_object2_depart, [0 lamberts23_time]);
 % Phasing maneuver
 % Use period of the fourth object and time since periapse passage
 % then use to find Me and use fourth's objects eccentricty.
