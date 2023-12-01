@@ -97,9 +97,10 @@ inc_object3 = coe_object3(4);
 RAAN_object3 = coe_object3(3);
 v_object3 = norm(vvect_object3_depart);
 
-rvect_object4_start = [-4.299031324314775e2 1.923690022476296e2 7.777323084694023e2];
-vvect_object4_start = [-17.907795963779567 -7.063735680315943 -8.198682991422665];
-% [rvect_object4, vvect_object4] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,object3_depart_time);
+rvect_object4_start = [-6.821074905741718e3;-0.609979433471615e3;2.479233696115208e3];
+vvect_object4_start = [-2.083352744891964;-2.878043758469060;-6.490413688087917];
+
+[rvect_object4_start, vvect_object4_start] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,object3_depart_time);
 
 coe_object4 = vector2coe(rvect_object4_start, vvect_object4_start,mu);
 inc_object4 = coe_object4(4);
@@ -126,13 +127,23 @@ rp = norm(rvect_orbit3_inc_raan_change);
 ra = norm(rvect_object4_start);
  [deltaVtotal,t] = hohmann(rp,ra);
 disp('Hohmanns to Object 4 orbit = ' + string(deltaVtotal) + ' km/s')
+
 time_after_hohmanns = object3_depart_time + t;
 
-[rvect_object4_orbit,vvect_object4_orbit] = r_and_v_of_hohmanns(rvect_orbit3_inc_raan_change,rvect_object4_start);
+[rvect_object4_orbit,vvect_object4_orbit,rvect_t,vvect_t] = r_and_v_of_hohmanns(rvect_orbit3_inc_raan_change,rvect_object4_start);
 [rvect_object4_posthohmann, vvect_object4_posthohmann] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,time_after_hohmanns);
 
 figure
-plotOrbit(rvect_object2_depart, vsc_object2_depart, [0 lamberts23_time]);
+plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
+hold on
+plotOrbit(rvect_object4_start,vvect_object4_start,[0 2*24*60*60]);
+hold on
+plotOrbit(rvect_t,vvect_t,[0 t]);
+legend("Orbit 3 w/ Inc RAAN change","Orbit 4","Hohmann Transfer")
+title('Hohmann Transfer')
+grid on
+hold off
+
 coes_new_object4 = vector2coe(rvect_object4_posthohmann',vvect_object4_posthohmann',mu);
 % Phasing maneuver
 [deltaVtotal,t] = phasing_maneuver(rvect_object4_orbit,rvect_object4_posthohmann,coes_new_object4(6),mu);
@@ -410,7 +421,7 @@ t = T/2; % Transfer time [s]
 t = t/60; % Transfer time [min]
 end
 
-function [rvect,vvect] = r_and_v_of_hohmanns(rvect_object3,rvect_object4)
+function [rvect,vvect,rvect_t,vvect_t] = r_and_v_of_hohmanns(rvect_object3,rvect_object4)
 % First burn
 mu_earth = 98600;
 r1 = norm(rvect_object3);
