@@ -407,3 +407,30 @@ delta_v_a2 = V_b1 - V_b2;
 delta_v_a2 = abs(delta_v_a2);
 deltaVtotal = delta_v_a1 + delta_v_a2;
 end
+
+% phasing maneuver - reviewing 
+function [deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA)
+rp = r_posthohmann;
+ra = r_object4;
+
+h_old = sqrt(2*mu_earth)*sqrt((rp*ra)/(rp+ra));
+ecc_old = (ra-rp)/(ra+rp);
+a_old = (1/2)*(rp+ra);
+T = ((2*pi)/sqrt(mu_earth))*a_old^(3/2);
+true_anomaly = deg2rad(TA);
+E_c = 2*atan(sqrt((1-ecc_old)/(1+ecc_old))*tan(true_anomaly/2));
+t_bc = (T/(2*pi))*(E_c-ecc_old*sin(E_c));
+T2 = T - t_bc;
+a_new = (((sqrt(mu_earth))*T2)/(2*pi))^(2/3);
+rd = 2*a_new - rp;
+h_new = sqrt(2*mu_earth)*sqrt((rp*rd)/(rp+rd));
+
+vp_new_orbit = h_new/rp;
+vp_old_orbit = h_old/rp;
+
+deltaStart = vp_new_orbit + vp_old_orbit;
+deltaEnd = vp_old_orbit - vp_new_orbit;
+deltaVtotal = abs(deltaStart) + abs(deltaEnd);
+
+t = t_bc/60; % mins
+end
