@@ -133,12 +133,10 @@ time_after_hohmanns = object3_depart_time + t;
 
 figure
 plotOrbit(rvect_object2_depart, vsc_object2_depart, [0 lamberts23_time]);
+coes_new_object4 = vector2coe(rvect_object4_posthohmann',vvect_object4_posthohmann',mu);
 % Phasing maneuver
-% Use period of the fourth object and time since periapse passage
-% then use to find Me and use fourth's objects eccentricty.
-%TA = MA2TA(Me,e)
-% Phasing maneuver
-[deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA)
+[deltaVtotal,t] = phasing_maneuver(rvect_object4_orbit,rvect_object4_posthohmann,coes_new_object4(6),mu);
+disp('Phasing maneuver to Object 4 = ' + string(deltaVtotal) + ' km/s')
 
 function [rPrime, vPrime] = propagateOrbit(r, v, epoch, endTime)
     % Harvey Perkins
