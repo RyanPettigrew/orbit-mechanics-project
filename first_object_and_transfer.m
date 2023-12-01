@@ -1,6 +1,5 @@
 %clc
 %clear all
-
 %global mu
 %mu = 398600; % km3/s2
 
@@ -29,6 +28,7 @@ object2_arrive_time = object1_depart_time + lamberts12_time;
 [vsc_object1_depart, vsc_object2_arrive] = lamberts(rvect_object1_depart, rvect_object2_arrive, lamberts12_time, 1);
 
 plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
+simulateOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time], rvect_object2_arrive');
 
 % Propagate object 2 for 5 orbits
 % period = 5.655e4
@@ -37,6 +37,7 @@ object2_depart_time = object2_arrive_time + object2_wait_time;
 [rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
 
+simulateOrbit(rvect_object2_depart, vsc_object2_depart, [0 object2_depart_time], rvect_object2_arrive);
 legend("Orbit 1", "Transfer 1-2", "Orbit 2")
 
 hold off
@@ -226,5 +227,57 @@ function S = stumpfS_trig(z)
     else
         S = 1/6;
     end
+end
+
+function simulateOrbit(r, v, tspan, debris_positions)
+    % r, v are column vectors for initial position & velocity
+    % tspan is the timespan [t0 tf] for the orbit
+    % debris_positions is a matrix where each row is a position vector of debris
+    % Get EOM
+    options = odeset('RelTol',1e-8,'AbsTol',1e-8);
+    [t,y] = ode45(@EOM, tspan, [r;v], options);
+
+    % Set up spacecraft STL
+    stlData = stlread('SpaceX Crew Dragon - 3486142\files\SpaceXCrewDragon.stl');
+    vertices = stlData.Points;
+    faces = stlData.ConnectivityList;
+    scale = 75; 
+    vertices = vertices * scale;
+    
+    % Set up video sim
+    video = VideoWriter('orbit_simulation.mp4', 'MPEG-4');
+    open(video);
+    
+    % Earth texture
+    earthTexture = 'earth.png';
+    [X, Y, Z] = sphere(50);
+    earth_radius = 6371;
+    globe = surf(earth_radius*X, earth_radius*Y, earth_radius*Z, 'EdgeColor', 'none');
+    set(globe, 'FaceColor', 'texturemap', 'CData', imread(earthTexture));
+    hold on;
+  
+    % Plot initial orbit & debris
+    orbitLine = plot3(y(:,1),y(:,2),y(:,3), 'b');
+    debrisDots = plot3(debris_positions(:,1), debris_positions(:,2), debris_positions(:,3), 'ro');
+    spacecraftDot = plot3(y(1,1), y(1,2), y(1,3), 'gs', 'MarkerSize', 10);
+    xlabel('x, km');
+    ylabel('y, km');
+    zlabel('z, km');
+    axis equal;
+    grid on;
+
+    % spacecraft
+    spacecraftModel = patch('Vertices', vertices, 'Faces', faces, 'FaceColor', [0.8, 0.8, 0.8], 'EdgeColor', 'none');
+    for spacecraft_idx = 1:length(t)
+        currentPosition = y(spacecraft_idx, 1:3);
+        transformedVertices = bsxfun(@plus, vertices, currentPosition - vertices(1,:));
+        set(spacecraftModel, 'Vertices', transformedVertices);
+        
+        drawnow;frame = getframe(gcf); % video simulation
+        writeVideo(video, frame);
+        pause(0.05); 
+    end
+    close(video);
+    hold off;
 end
 
