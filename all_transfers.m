@@ -7,17 +7,19 @@ mu = 398600; % km3/s2
 rvect_object1 = [-2.77e4;2.26e4;0.0448e4];
 vvect_object1 = [-2.11;-2.59;0.0265];
 epoch = 8.856990254250000e+09;
-% Propagate forwards 2 days
-object1_depart_time = epoch + 2*24*60*60;
+% Propagate forwards 5 periods plus a bit
+% period object 1 = 6.738e4 seconds
+loiter_time_object1 = 5*5.738e4 + 2*60*60;
+object1_depart_time = epoch + loiter_time_object1;
 [rvect_object1_depart, vvect_object1_depart] = propagateOrbit(rvect_object1,vvect_object1,epoch,object1_depart_time);
-plotOrbit(rvect_object1, vvect_object1, [0 2*24*60*60]);
+plotOrbit(rvect_object1, vvect_object1, [0 loiter_time_object1]);
 
 %% Lamberts to object 2
 % At epoch
 %rvect_object2_new = [-0.0737e4; 3.10e4; 0.00863e4];
 %vvect_object2_new = [-3.62; -0.0609; -0.330];
 
-lamberts12_time = 24*60*60;
+lamberts12_time = 18*60*60;
 object2_arrive_time = object1_depart_time + lamberts12_time;
 
 [rvect_object2_arrive, vvect_object2_arrive] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object2_arrive_time);
@@ -27,8 +29,9 @@ object2_arrive_time = object1_depart_time + lamberts12_time;
 
 plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
 
-% Propagate object 2 for 2 days
-object2_wait_time = 2*24*60*60 + 2.2*60*60;
+% Propagate object 2 for 5 orbits
+% period = 5.655e4
+object2_wait_time = 5*5.655e4 + 30*60*60; % prev: 30
 object2_depart_time = object2_arrive_time + object2_wait_time;
 [rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
