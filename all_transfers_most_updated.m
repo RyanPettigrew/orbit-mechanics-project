@@ -5,15 +5,15 @@ close all
 %global mu
 mu = 398600; % km3/s2
 
- rvect_object1 = [-2.77e4;2.26e4;0.0448e4];
- vvect_object1 = [-2.11;-2.59;0.0265];
-% rvect_object1 = [-3.267467850897391e4 2.666846629075791e4 0.052740529923902e4];
-% vvect_object1 = [-1.941435016388355 -2.382720492211831 0.024428097819707];
+% rvect_object1 = [-2.77e4;2.26e4;0.0448e4];
+% vvect_object1 = [-2.11;-2.59;0.0265];
+ rvect_object1 = [-3.267467850897391e4; 2.666846629075791e4; 0.052740529923902e4];
+ vvect_object1 = [-1.941435016388355; -2.382720492211831; 0.024428097819707];
 
 epoch = 8.856990254250000e+09;
 % Propagate forwards 5 periods plus a bit
-% period object 1 = 6.738e4 seconds
-loiter_time_object1 = 5*5.738e4 + 2*60*60;
+% period object 1 = 8.617e4 seconds
+loiter_time_object1 = 5*8.617e4 + 9*60*60;
 object1_depart_time = epoch + loiter_time_object1;
 [rvect_object1_depart, vvect_object1_depart] = propagateOrbit(rvect_object1,vvect_object1,epoch,object1_depart_time);
 figure
@@ -22,14 +22,14 @@ hold on
 
 %% Lamberts to object 2
 % At epoch
-% rvect_object2_new = [-0.058320776102072e4 3.719852979087268e4 0.007613527772417e4];
-% vvect_object2_new = [-3.302738702424707 -0.029338075546502 0.300849920350975];
- rvect_object2_new = [-0.0737e4; 3.10e4; 0.00863e4];
- vvect_object2_new = [-3.62; -0.0609; -0.330];
+ rvect_object2_new = [-0.058320776102072e4; 3.719852979087268e4; 0.007613527772417e4];
+ vvect_object2_new = [-3.302738702424707; -0.029338075546502; 0.300849920350975];
+% rvect_object2_new = [-0.0737e4; 3.10e4; 0.00863e4];
+% vvect_object2_new = [-3.62; -0.0609; -0.330];
 
- [rvect_object2_new, vvect_object2_new] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object1_depart_time);
+% [rvect_object2_new, vvect_object2_new] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object1_depart_time);
 
-lamberts12_time = 18*60*60;
+lamberts12_time = 20.68*60*60; % prev: 20.68
 object2_arrive_time = object1_depart_time + lamberts12_time;
 
 [rvect_object2_arrive, vvect_object2_arrive] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object2_arrive_time);
@@ -40,8 +40,8 @@ object2_arrive_time = object1_depart_time + lamberts12_time;
 plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
 
 % Propagate object 2 for 5 orbits
-% period = 5.655e4
-object2_wait_time = 5*5.655e4 + 30*60*60; % prev: 30
+% period = 7.436e4
+object2_wait_time = 5*7.436e4 + 11.3*60*60; % prev: 11.3
 object2_depart_time = object2_arrive_time + object2_wait_time;
 [rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
@@ -60,14 +60,14 @@ hold on
 %% Lamberts to object 3
 
 
-lamberts23_time = 3.12*60*60; 
+lamberts23_time = 3.9*60*60; 
 object3_arrive_time = object2_depart_time + lamberts23_time;
-% rvect_object3 = [0.099221289746647e3 -2.495960051500151e3 -6.829798227857773e3];
-% vvect_object3 = [7.309683122916486 1.173315870778262 -0.331602416389682];
- rvect_object3 = 10^2*[8.762180894975575;2.048550193447096;1.347181696876256];
- vvect_object4 = [-4.437140387214239;6.361898900101488;19.423106726508873];
+ rvect_object3 = [0.099221289746647e3; -2.495960051500151e3; -6.829798227857773e3];
+ vvect_object3 = [7.309683122916486; 1.173315870778262; -0.331602416389682];
+% rvect_object3 = 10^2*[8.762180894975575;2.048550193447096;1.347181696876256];
+% vvect_object4 = [-4.437140387214239;6.361898900101488;19.423106726508873];
 
-[rvect_object3_arrive, vvect_object3_arrive] = propagateOrbit(rvect_object3,vvect_object4,epoch,object3_arrive_time);
+[rvect_object3_arrive, vvect_object3_arrive] = propagateOrbit(rvect_object3,vvect_object3,epoch,object3_arrive_time);
 
 % lamberts
 [vsc_object2_depart, vsc_object3_arrive] = lamberts(rvect_object2_depart, rvect_object3_arrive, lamberts23_time, 1);
@@ -75,11 +75,11 @@ object3_arrive_time = object2_depart_time + lamberts23_time;
 plotOrbit(rvect_object2_depart, vsc_object2_depart, [0 lamberts23_time]);
 hold on
 % Propagate object 3 for 5 periods
-% period object 3 = 2.725e2
-object3_wait_time = 5*2.725e2;
+% period object 3 = 6.190e3
+object3_wait_time = 5*6.190e3;
 object3_depart_time = object3_arrive_time + object3_wait_time;
 [rvect_object3_depart, vvect_object3_depart] = propagateOrbit(rvect_object3_arrive,vvect_object3_arrive,object3_arrive_time,object3_depart_time);
-plotOrbit(rvect_object3_arrive, vvect_object3_arrive, [0 2*24*60*60]);
+plotOrbit(rvect_object3_arrive, vvect_object3_arrive, [0 object3_wait_time]);
 
 disp("Object 2 departure burn: " + norm(vsc_object2_depart - vvect_object2_depart) + " km/s")
 disp("Object 3 arrival burn: " + norm(vsc_object3_arrive - vvect_object3_arrive) + " km/s")
