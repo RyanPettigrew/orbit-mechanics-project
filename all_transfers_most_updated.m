@@ -124,7 +124,11 @@ time_after_hohmanns = object3_depart_time + t;
 [rvect_object4_posthohmann, vvect_object4_posthohmann] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,time_after_hohmanns);
 
 % Phasing maneuver
-% Currently editing [deltaVtotal,t] = phasing_maneuver()
+% Use period of the fourth object and time since periapse passage
+% then use to find Me and use fourth's objects eccentricty.
+%TA = MA2TA(Me,e)
+% Phasing maneuver
+[deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA)
 
 function [rPrime, vPrime] = propagateOrbit(r, v, epoch, endTime)
     % Harvey Perkins
@@ -421,28 +425,29 @@ vvect = vvect_2 + vvect_t;
 end
 
 % Currently editing
-function [deltaVtotal] = phasing_maneuver()
-rp = 8100; % [km]
-ra = 18900; % [km]
-h = sqrt(2*mu_earth)*sqrt((rp*ra)/(rp + ra)); % Angular momentum of the orbit
-ecc1 = (ra - rp)/(ra + rp);
-a1 = (1/2)*(rp + ra);
-T1 = (2*pi)/(sqrt(mu_earth))*(a1^(3/2));
-true_anomaly_c = 150-45; % [degrees]
-true_anomaly_c = deg2rad(true_anomaly_c);
-E_c = 2*atan(sqrt((1-ecc1)/(1+ecc1))*tan(true_anomaly_c/2));
-t_bc = (T1/(2*pi))*(E_c - ecc1*sin(E_c));
-T2 = T1 - t_bc;
-a2 = (((sqrt(mu_earth))*T2)/(2*pi))^(2/3);
-% 2*a2 = rA + rD;
-rd = 2*a2 - rp;
-h2 = sqrt(2*mu_earth)*sqrt((rp*rd)/(rp + rd));
-V_b1 = h1/rp;
-V_b2 = h2/rp;
-delta_v_a1 = V_b2 - V_b1;
-delta_v_a1 = abs(delta_v_a1);
+% phasing maneuver - reviewing 
+function [deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA)
+rp = r_posthohmann;
+ra = r_object4;
 
-delta_v_a2 = V_b1 - V_b2;
-delta_v_a2 = abs(delta_v_a2);
-deltaVtotal = delta_v_a1 + delta_v_a2;
+h_old = sqrt(2*mu_earth)*sqrt((rp*ra)/(rp+ra));
+ecc_old = (ra-rp)/(ra+rp);
+a_old = (1/2)*(rp+ra);
+T = ((2*pi)/sqrt(mu_earth))*a_old^(3/2);
+true_anomaly = deg2rad(TA);
+E_c = 2*atan(sqrt((1-ecc_old)/(1+ecc_old))*tan(true_anomaly/2));
+t_bc = (T/(2*pi))*(E_c-ecc_old*sin(E_c));
+T2 = T - t_bc;
+a_new = (((sqrt(mu_earth))*T2)/(2*pi))^(2/3);
+rd = 2*a_new - rp;
+h_new = sqrt(2*mu_earth)*sqrt((rp*rd)/(rp+rd));
+
+vp_new_orbit = h_new/rp;
+vp_old_orbit = h_old/rp;
+
+deltaStart = vp_new_orbit + vp_old_orbit;
+deltaEnd = vp_old_orbit - vp_new_orbit;
+deltaVtotal = abs(deltaStart) + abs(deltaEnd);
+
+t = t_bc/60; % mins
 end
