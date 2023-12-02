@@ -17,6 +17,7 @@ loiter_time_object1 = 5*8.617e4 + 9*60*60;
 object1_depart_time = epoch + loiter_time_object1;
 [rvect_object1_depart, vvect_object1_depart] = propagateOrbit(rvect_object1,vvect_object1,epoch,object1_depart_time);
 figure
+% Plot 1: Orbit #1
 plotOrbit(rvect_object1, vvect_object1, [0 loiter_time_object1]);
 hold on
 
@@ -31,12 +32,12 @@ hold on
 
 lamberts12_time = 20.68*60*60; % prev: 20.68
 object2_arrive_time = object1_depart_time + lamberts12_time;
-
 [rvect_object2_arrive, vvect_object2_arrive] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object2_arrive_time);
 
 % lamberts
 [vsc_object1_depart, vsc_object2_arrive] = lamberts(rvect_object1_depart, rvect_object2_arrive, lamberts12_time, 1);
 
+% Plot 2: Transfer #1
 plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
 
 % Propagate object 2 for 5 orbits
@@ -44,21 +45,19 @@ plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
 object2_wait_time = 5*7.436e4 + 11.3*60*60; % prev: 11.3
 object2_depart_time = object2_arrive_time + object2_wait_time;
 [rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
+
+% Plot 3: Orbit #2
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
-
 legend("Orbit 1", "Transfer 1-2", "Orbit 2")
-
 hold off
 
 disp("Object 1 departure burn: " + norm(vsc_object1_depart - vvect_object1_depart) + " km/s")
 disp("Object 2 arrival burn: " + norm(vsc_object2_arrive - vvect_object2_arrive) + " km/s")
 
-% Transfer 2
-figure
-plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
-hold on
+% figure
+% plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
+% hold on
 %% Lamberts to object 3
-
 
 lamberts23_time = 3.9*60*60; 
 object3_arrive_time = object2_depart_time + lamberts23_time;
@@ -72,13 +71,17 @@ object3_arrive_time = object2_depart_time + lamberts23_time;
 % lamberts
 [vsc_object2_depart, vsc_object3_arrive] = lamberts(rvect_object2_depart, rvect_object3_arrive, lamberts23_time, 1);
 
+% Plot 4: Transfer #2
 plotOrbit(rvect_object2_depart, vsc_object2_depart, [0 lamberts23_time]);
 hold on
+
 % Propagate object 3 for 5 periods
 % period object 3 = 6.190e3
 object3_wait_time = 5*6.190e3;
 object3_depart_time = object3_arrive_time + object3_wait_time;
 [rvect_object3_depart, vvect_object3_depart] = propagateOrbit(rvect_object3_arrive,vvect_object3_arrive,object3_arrive_time,object3_depart_time);
+
+% Plot 5: Orbit #3
 plotOrbit(rvect_object3_arrive, vvect_object3_arrive, [0 object3_wait_time]);
 
 disp("Object 2 departure burn: " + norm(vsc_object2_depart - vvect_object2_depart) + " km/s")
@@ -114,8 +117,11 @@ disp('Object 3 inc and RAAN change = ' + string(delta_v_from_inc_RAAN_change) + 
 coes_new = [coe_object3(1), coe_object3(2), coe_object4(3), coe_object4(4), coe_object3(5), coe_object3(6), coe_object3(7)];
 [rvect_orbit3_inc_raan_change, vvect_orbit3_inc_raan_change] = coes2vector(coes_new); % This is our new r and v vector that has an inc and RAAN the same as object 4 but everything else the same as object 3
 figure
+
+%Plot 6: Orbit transfer #3
 plotOrbit(rvect_object3_depart,vvect_object3_depart, [0 2*24*60*60]);
 hold on
+% Plot 7: orbit #4
 plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
 legend("Orbit 3", "Orbit 3 w/ Inc RAAN change")
 title('Inc and RAAN Change')
@@ -132,24 +138,66 @@ time_after_hohmanns = object3_depart_time + t;
 
 [rvect_object4_orbit,vvect_object4_orbit,rvect_t,vvect_t] = r_and_v_of_hohmanns(rvect_orbit3_inc_raan_change,rvect_object4_start);
 [rvect_object4_posthohmann, vvect_object4_posthohmann] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,time_after_hohmanns);
+% 
+% figure
+% plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
+% hold on
+% plotOrbit(rvect_object4_start,vvect_object4_start,[0 2*24*60*60]);
+% hold on
+% plotOrbit(rvect_t,vvect_t,[0 t]);
+% legend("Orbit 3 w/ Inc RAAN change","Orbit 4","Hohmann Transfer")
+% title('Hohmann Transfer')
+% grid on
+% hold off
+% 
+% coes_new_object4 = vector2coe(rvect_object4_posthohmann',vvect_object4_posthohmann',mu);
+% 
+% % Phasing maneuver
+% [deltaVtotal,t] = phasing_maneuver(rvect_object4_orbit,rvect_object4_posthohmann,coes_new_object4(6),mu);
+% disp('Phasing maneuver to Object 4 = ' + string(deltaVtotal) + ' km/s')
 
-figure
-plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
-hold on
-plotOrbit(rvect_object4_start,vvect_object4_start,[0 2*24*60*60]);
-hold on
-plotOrbit(rvect_t,vvect_t,[0 t]);
-legend("Orbit 3 w/ Inc RAAN change","Orbit 4","Hohmann Transfer")
-title('Hohmann Transfer')
-grid on
-hold off
+%% SIMULATIUONS
 
-coes_new_object4 = vector2coe(rvect_object4_posthohmann',vvect_object4_posthohmann',mu);
+% % Plot 1: Orbit #1
+% plotOrbit(rvect_object1, vvect_object1, [0 loiter_time_object1]);
+% % Plot 2: Transfer #1
+% plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
+% % Plot 3: Orbit #2
+% plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
+% % Plot 4: Transfer #2
+% plotOrbit(rvect_object2_depart, vsc_object2_depart, [0 lamberts23_time]);
+% % Plot 5: Orbit #3
+% plotOrbit(rvect_object3_arrive, vvect_object3_arrive, [0 object3_wait_time]);
+% %Plot 6: Orbit transfer #3
+% plotOrbit(rvect_object3_depart,vvect_object3_depart, [0 2*24*60*60]);
+% % Plot 7: orbit #4
+% plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
 
-% Phasing maneuver
-[deltaVtotal,t] = phasing_maneuver(rvect_object4_orbit,rvect_object4_posthohmann,coes_new_object4(6),mu);
-disp('Phasing maneuver to Object 4 = ' + string(deltaVtotal) + ' km/s')
+% Position Segments
+rvect_orbits_and_transfers = {
+    rvect_object1, rvect_object1_depart, rvect_object2_arrive, rvect_object2_depart,...
+    rvect_object3_arrive, rvect_object3_depart, rvect_orbit3_inc_raan_change };
 
+% velocity segments
+vvect_orbits_and_transfers = {
+    vvect_object1, vsc_object1_depart, vvect_object2_arrive,vsc_object2_depart,...
+    vvect_object3_arrive,vvect_object3_depart,vvect_orbit3_inc_raan_change};
+
+% Time segments
+tspans_orbits_and_transfers = {
+    [0, loiter_time_object1],    
+    [0, lamberts12_time],     
+    [0, object2_wait_time],      
+    [0, lamberts23_time],      
+    [0, object3_wait_time],
+    [0 2*24*60*60],
+    [0 2*24*60*60]};
+
+% Debris positions
+debris_positions = [rvect_object1';rvect_object2_new';rvect_object3'];
+simulateOrbitsALL(rvect_orbits_and_transfers, vvect_orbits_and_transfers, tspans_orbits_and_transfers, debris_positions);
+
+%% FUNCTIONS
 function [rPrime, vPrime] = propagateOrbit(r, v, epoch, endTime)
     % Harvey Perkins
     % Propagates orbit from r,v vectors at epoch to endTime
@@ -470,4 +518,60 @@ deltaEnd = vp_old_orbit - vp_new_orbit;
 deltaVtotal = abs(deltaStart) + abs(deltaEnd);
 
 t = t_bc/60; % mins
+end
+
+function simulateOrbitsALL(all_r, all_v, all_tspans, debris_positions)
+    % r, v are column vectors for initial position & velocity
+    % tspan is the timespan [t0 tf] for the orbit
+    % debris_positions is a matrix of all positions of debris
+    % Get EOM
+
+    % Earth texture
+    earthTexture = 'earth.png';
+    [X, Y, Z] = sphere(100);
+    earth_radius = 6371;
+    globe = surf(earth_radius*X, earth_radius*Y, earth_radius*Z, 'EdgeColor', 'none');
+    set(globe, 'FaceColor', 'texturemap', 'CData', imread(earthTexture));
+    hold on;
+    
+    % Set up video sim
+    video = VideoWriter('all_orbit_simulation.mp4', 'MPEG-4');
+    open(video);
+
+    % Set up spacecraft STL
+    stlData = stlread('SpaceX Crew Dragon - 3486142\files\SpaceXCrewDragon.stl');
+    vertices = stlData.Points;
+    faces = stlData.ConnectivityList;
+    scale = 50; 
+    vertices = vertices * scale;
+    spacecraftModel = patch('Vertices', vertices, 'Faces', faces, 'FaceColor', [0.8, 0.8, 0.8], 'EdgeColor', 'none');
+
+    % All orbits and transfers
+    for segment_idx = 1:length(all_r)
+        r = all_r{segment_idx};
+        v = all_v{segment_idx};
+        tspan = all_tspans{segment_idx};
+        options = odeset('RelTol',1e-8,'AbsTol',1e-8);
+        [t,y] = ode45(@EOM, tspan, [r;v], options);
+
+        plot3(y(:,1),y(:,2),y(:,3), 'b');
+        
+        % spacecraft positions
+        for spacecraft_idx = 1:length(t)
+            currentPosition = y(spacecraft_idx, 1:3);
+            transformedVertices = bsxfun(@plus, vertices, currentPosition - vertices(1,:));
+            set(spacecraftModel, 'Vertices', transformedVertices);
+
+            drawnow;
+            frame = getframe(gcf);
+            writeVideo(video, frame);
+%             pause(0.05); %video speed
+        end
+    end
+
+    % Plot debris positions
+    plot3(debris_positions(:,1), debris_positions(:,2), debris_positions(:,3), 'ro');
+    xlabel('x, km'); ylabel('y, km'); zlabel('z, km');
+    axis equal; grid on; hold off;
+    close(video);
 end
