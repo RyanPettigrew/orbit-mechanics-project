@@ -35,6 +35,7 @@ hold on
 % [rvect_object2_new, vvect_object2_new] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object1_depart_time);
 
 lamberts12_time = 20.68*60*60; % prev: 20.68
+disp("Transfer 1 time: " + lamberts12_time/3600 + " hr")
 object2_arrive_time = object1_depart_time + lamberts12_time;
 disp("Object 2 arrival time:")
 disp(datetime(object2_arrive_time/(60*60),'convertfrom','juliandate'))
@@ -69,6 +70,7 @@ hold on
 
 
 lamberts23_time = 3.9*60*60; 
+disp("Transfer 2 time: " + lamberts23_time/3600 + " hr")
 object3_arrive_time = object2_depart_time + lamberts23_time;
 disp("Object 3 arrive time:")
 disp(datetime(object3_arrive_time/(60*60),'convertfrom','juliandate'))
