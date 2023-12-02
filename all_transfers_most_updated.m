@@ -138,7 +138,7 @@ time_after_hohmanns = object3_depart_time + t;
 
 [rvect_object4_orbit,vvect_object4_orbit,rvect_t,vvect_t] = r_and_v_of_hohmanns(rvect_orbit3_inc_raan_change,rvect_object4_start);
 [rvect_object4_posthohmann, vvect_object4_posthohmann] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,time_after_hohmanns);
-% 
+
 % figure
 % plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
 % hold on
@@ -149,12 +149,17 @@ time_after_hohmanns = object3_depart_time + t;
 % title('Hohmann Transfer')
 % grid on
 % hold off
-% 
+% coes_old = vector2coe(rvect_object4_orbit,vvect_object4_orbit,mu);
 % coes_new_object4 = vector2coe(rvect_object4_posthohmann',vvect_object4_posthohmann',mu);
 % 
 % % Phasing maneuver
-% [deltaVtotal,t] = phasing_maneuver(rvect_object4_orbit,rvect_object4_posthohmann,coes_new_object4(6),mu);
+% [deltaVtotal,t] = phasemaneuver2(rvect_object4_orbit,rvect_object4_posthohmann,coes_old(6),coes_new_object4(6),mu);
 % disp('Phasing maneuver to Object 4 = ' + string(deltaVtotal) + ' km/s')
+% object4_wait_time = (((2*pi)/sqrt(mu))*(coes_new_object4(7)^(3/2)))*5;
+% figure
+% plotOrbit(rvect_object4_posthohmann,vvect_object4_posthohmann,[0 object4_wait_time])
+% legend('Orbit 4 from Hohmann Transfer')
+% hold off
 
 %% SIMULATIUONS
 
@@ -492,32 +497,40 @@ rvect = rvect_2;
 vvect = vvect_2 + vvect_t;
 end
 
-% Currently editing
-% phasing maneuver - reviewing 
-function [deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA,mu)
-rp = r_posthohmann;
-ra = r_object4;
+function [deltaVtotal,t] = phasemaneuver2(r_orbit_4,r_posthohmann,TA1,TA2,mu)
 
-h_old = sqrt(2*mu)*sqrt((rp*ra)/(rp+ra));
-ecc_old = (ra-rp)/(ra+rp);
-a_old = (1/2)*(rp+ra);
-T = ((2*pi)/sqrt(mu))*a_old^(3/2);
-true_anomaly = deg2rad(TA);
-E_c = 2*atan(sqrt((1-ecc_old)/(1+ecc_old))*tan(true_anomaly/2));
-t_bc = (T/(2*pi))*(E_c-ecc_old*sin(E_c));
-T2 = T - t_bc;
-a_new = (((sqrt(mu))*T2)/(2*pi))^(2/3);
-rd = 2*a_new - rp;
-h_new = sqrt(2*mu)*sqrt((rp*rd)/(rp+rd));
+rp1 = norm(r_orbit_4);
+ra1 = norm(r_posthohmann);
+h1 = sqrt(2*mu)*sqrt((rp1*ra1)/(rp1+ra1));
+ecc1 = (ra1-rp1)/(ra1+rp1);
+a1 = (rp1+ra1)/2;
+T1 = ((2*pi)/sqrt(mu))*a1^(3/2);
+%for orbit 1
+rb = (h1^2/mu)*(1/(1+ecc1*cosd(TA1)));
+vazb1 = h1/rb;
+vrb1 = (mu/h1)*ecc1*sind(TA1);
+vb1 = sqrt(vazb1^2+vrb1^2);
+flightpath1 = atand(vrb1/vazb1);
+% period for phase
+Ec = 2*atan(sqrt((1-ecc1)/(1+ecc1))*tand(TA2/2));
+Mc = Ec - ecc1*sin(Ec);
+tc = (Mc/(2*pi))*T1;
+Eb = 2*atan(sqrt((1-ecc1)/(1+ecc1))*tand(TA2/2));
+Mb = Eb - ecc1*sin(Eb);
+tb = (Mb/(2*pi))*T1;
+tCB = T1-(tc-tb);
+T2 = tCB;
+% now orbit 2 info
+a2 = (T2*sqrt(mu)/(2*pi))^(2/3);
+ra2 = 2*a2-rb;
+h2 = sqrt(2*mu)*sqrt(rb*ra2/(rb+ra2));
+vb2 = h2/rb;
+flightpath2 = 0;
+% finally, deltav
+deltaVtotal = 2*sqrt(vb1^2+vb2^2 - 2*vb1*vb2*cosd(flightpath2-flightpath1));
 
-vp_new_orbit = h_new/rp;
-vp_old_orbit = h_old/rp;
+t = T2;
 
-deltaStart = vp_new_orbit + vp_old_orbit;
-deltaEnd = vp_old_orbit - vp_new_orbit;
-deltaVtotal = abs(deltaStart) + abs(deltaEnd);
-
-t = t_bc/60; % mins
 end
 
 function simulateOrbitsALL(all_r, all_v, all_tspans, debris_positions)
