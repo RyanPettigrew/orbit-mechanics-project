@@ -165,6 +165,19 @@ coes_new_object4 = vector2coe(rvect_object4_posthohmann',vvect_object4_posthohma
 [deltaVtotal,t] = phasing_maneuver(rvect_object4_orbit,rvect_object4_posthohmann,coes_new_object4(6),mu);
 disp('Phasing maneuver to Object 4 = ' + string(deltaVtotal) + ' km/s')
 
+object4_wait_time = (((2*pi)/sqrt(mu))*(coes_new_object4(7)^(3/2)))*5;
+
+[rvect_final,vvect_final] = propagateOrbit(rvect_object4_posthohmann',vvect_object4_posthohmann',epoch,object4_wait_time);
+
+figure
+plotOrbit(rvect_final,vvect_final,[0 object4_wait_time]);
+hold on
+plotOrbit(rvect_object4_posthohmann',vvect_object4_posthohmann',[0 object4_wait_time])
+hold on
+legend('Orbit 4 from Hohmann Transfer','Object 4 Orbit')
+hold off
+
+
 function [rPrime, vPrime] = propagateOrbit(r, v, epoch, endTime)
     % Harvey Perkins
     % Propagates orbit from r,v vectors at epoch to endTime
@@ -462,8 +475,8 @@ end
 % Currently editing
 % phasing maneuver - reviewing 
 function [deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA,mu)
-rp = r_posthohmann;
-ra = r_object4;
+rp = norm(r_posthohmann);
+ra = norm(r_object4);
 
 h_old = sqrt(2*mu)*sqrt((rp*ra)/(rp+ra));
 ecc_old = (ra-rp)/(ra+rp);
