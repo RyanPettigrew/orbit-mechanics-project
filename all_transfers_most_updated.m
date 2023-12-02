@@ -115,7 +115,7 @@ v_object3 = norm(vvect_object3_depart);
 rvect_object4_start = [-6.821074905741718e3;-0.609979433471615e3;2.479233696115208e3];
 vvect_object4_start = [-2.083352744891964;-2.878043758469060;-6.490413688087917];
 
-[rvect_object4_start, vvect_object4_start] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,object3_depart_time);
+%[rvect_object4_start, vvect_object4_start] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,object3_depart_time);
 
 coe_object4 = vector2coe(rvect_object4_start, vvect_object4_start,mu);
 inc_object4 = coe_object4(4);
@@ -167,13 +167,13 @@ disp('Phasing maneuver to Object 4 = ' + string(deltaVtotal) + ' km/s')
 
 object4_wait_time = (((2*pi)/sqrt(mu))*(coes_new_object4(7)^(3/2)))*5;
 
-[rvect_final,vvect_final] = propagateOrbit(rvect_object4_posthohmann',vvect_object4_posthohmann',epoch,object4_wait_time);
+%[rvect_final,vvect_final] = propagateOrbit(rvect_object4_posthohmann',vvect_object4_posthohmann',epoch,object4_wait_time);
 
 figure
-plotOrbit(rvect_final,vvect_final,[0 object4_wait_time]);
-hold on
-plotOrbit(rvect_object4_posthohmann',vvect_object4_posthohmann',[0 object4_wait_time])
-hold on
+%plotOrbit(rvect_final,vvect_final,[0 object4_wait_time]);
+%hold on
+plotOrbit(rvect_object4_posthohmann,vvect_object4_posthohmann,[0 object4_wait_time])
+%hold on
 legend('Orbit 4 from Hohmann Transfer','Object 4 Orbit')
 hold off
 
