@@ -19,7 +19,7 @@ min = 41;
 sec = 42;
 
 [JD] = julian_date(Y,M,D,hour,min,sec);
-JD_seconds_object1 = JD*3600;
+JD_seconds_object1 = JD*24*3600;
 epoch = JD_seconds_object1;
 
 % r and v vector to get COEs
@@ -48,7 +48,7 @@ hour = 11;
 min = 45;
 sec = 52;
 [JD] = julian_date(Y,M,D,hour,min,sec);
-JD_seconds_object2 = JD*3600;
+JD_seconds_object2 = JD*24*3600;
 time_difference1 = JD_seconds_object2 - JD_seconds_object1;
 % r and v vector to get COEs
 %coe = [h, e, RA, inc, w, TA, a];
@@ -90,7 +90,7 @@ hour = 13;
 min = 51;
 sec = 52;
 [JD] = julian_date(Y,M,D,hour,min,sec);
-JD_seconds_object3 = JD*3600;
+JD_seconds_object3 = JD*24*3600;
 time_difference2 = JD_seconds_object3 - JD_seconds_object1;
 % r and v vector to get COEs
 %coe = [h, e, RA, inc, w, TA, a];
@@ -132,7 +132,7 @@ hour = 12;
 min = 42;
 sec = 53;
 [JD] = julian_date(Y,M,D,hour,min,sec);
-JD_seconds_object4 = JD*3600;
+JD_seconds_object4 = JD*24*3600;
 time_difference4 = JD_seconds_object4 - JD_seconds_object1;
 % r and v vector to get COEs
 %coe = [h, e, RA, inc, w, TA, a];
