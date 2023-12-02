@@ -5,16 +5,19 @@ close all
 %global mu
 mu = 398600; % km3/s2
 
- rvect_object1 = [-2.77e4;2.26e4;0.0448e4];
- vvect_object1 = [-2.11;-2.59;0.0265];
-% rvect_object1 = [-3.267467850897391e4 2.666846629075791e4 0.052740529923902e4];
-% vvect_object1 = [-1.941435016388355 -2.382720492211831 0.024428097819707];
+% rvect_object1 = [-2.77e4;2.26e4;0.0448e4];
+% vvect_object1 = [-2.11;-2.59;0.0265];
+ rvect_object1 = [-3.267467850897391e4; 2.666846629075791e4; 0.052740529923902e4];
+ vvect_object1 = [-1.941435016388355; -2.382720492211831; 0.024428097819707];
 
 epoch = 8.856990254250000e+09;
+disp("Mission start time: " + datetime(epoch/(60*60),'convertfrom','juliandate'))
+
 % Propagate forwards 5 periods plus a bit
-% period object 1 = 6.738e4 seconds
-loiter_time_object1 = 5*5.738e4 + 2*60*60;
+% period object 1 = 8.617e4 seconds
+loiter_time_object1 = 5*8.617e4 + 9*60*60;
 object1_depart_time = epoch + loiter_time_object1;
+disp("Object 1 depart time: " + datetime(object1_depart_time/(60*60),'convertfrom','juliandate'))
 [rvect_object1_depart, vvect_object1_depart] = propagateOrbit(rvect_object1,vvect_object1,epoch,object1_depart_time);
 figure
 plotOrbit(rvect_object1, vvect_object1, [0 loiter_time_object1]);
@@ -22,16 +25,16 @@ hold on
 
 %% Lamberts to object 2
 % At epoch
-% rvect_object2_new = [-0.058320776102072e4 3.719852979087268e4 0.007613527772417e4];
-% vvect_object2_new = [-3.302738702424707 -0.029338075546502 0.300849920350975];
- rvect_object2_new = [-0.0737e4; 3.10e4; 0.00863e4];
- vvect_object2_new = [-3.62; -0.0609; -0.330];
+ rvect_object2_new = [-0.058320776102072e4; 3.719852979087268e4; 0.007613527772417e4];
+ vvect_object2_new = [-3.302738702424707; -0.029338075546502; 0.300849920350975];
+% rvect_object2_new = [-0.0737e4; 3.10e4; 0.00863e4];
+% vvect_object2_new = [-3.62; -0.0609; -0.330];
 
- [rvect_object2_new, vvect_object2_new] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object1_depart_time);
+% [rvect_object2_new, vvect_object2_new] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object1_depart_time);
 
-lamberts12_time = 18*60*60;
+lamberts12_time = 20.68*60*60; % prev: 20.68
 object2_arrive_time = object1_depart_time + lamberts12_time;
-
+disp("Mission start time: " + datetime(epoch/(60*60),'convertfrom','juliandate'))
 [rvect_object2_arrive, vvect_object2_arrive] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object2_arrive_time);
 
 % lamberts
@@ -40,8 +43,8 @@ object2_arrive_time = object1_depart_time + lamberts12_time;
 plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
 
 % Propagate object 2 for 5 orbits
-% period = 5.655e4
-object2_wait_time = 5*5.655e4 + 30*60*60; % prev: 30
+% period = 7.436e4
+object2_wait_time = 5*7.436e4 + 11.3*60*60; % prev: 11.3
 object2_depart_time = object2_arrive_time + object2_wait_time;
 [rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
@@ -60,14 +63,14 @@ hold on
 %% Lamberts to object 3
 
 
-lamberts23_time = 3.12*60*60; 
+lamberts23_time = 3.9*60*60; 
 object3_arrive_time = object2_depart_time + lamberts23_time;
-% rvect_object3 = [0.099221289746647e3 -2.495960051500151e3 -6.829798227857773e3];
-% vvect_object3 = [7.309683122916486 1.173315870778262 -0.331602416389682];
- rvect_object3 = 10^2*[8.762180894975575;2.048550193447096;1.347181696876256];
- vvect_object4 = [-4.437140387214239;6.361898900101488;19.423106726508873];
+ rvect_object3 = [0.099221289746647e3; -2.495960051500151e3; -6.829798227857773e3];
+ vvect_object3 = [7.309683122916486; 1.173315870778262; -0.331602416389682];
+% rvect_object3 = 10^2*[8.762180894975575;2.048550193447096;1.347181696876256];
+% vvect_object4 = [-4.437140387214239;6.361898900101488;19.423106726508873];
 
-[rvect_object3_arrive, vvect_object3_arrive] = propagateOrbit(rvect_object3,vvect_object4,epoch,object3_arrive_time);
+[rvect_object3_arrive, vvect_object3_arrive] = propagateOrbit(rvect_object3,vvect_object3,epoch,object3_arrive_time);
 
 % lamberts
 [vsc_object2_depart, vsc_object3_arrive] = lamberts(rvect_object2_depart, rvect_object3_arrive, lamberts23_time, 1);
@@ -75,11 +78,11 @@ object3_arrive_time = object2_depart_time + lamberts23_time;
 plotOrbit(rvect_object2_depart, vsc_object2_depart, [0 lamberts23_time]);
 hold on
 % Propagate object 3 for 5 periods
-% period object 3 = 2.725e2
-object3_wait_time = 5*2.725e2;
+% period object 3 = 6.190e3
+object3_wait_time = 5*6.190e3;
 object3_depart_time = object3_arrive_time + object3_wait_time;
 [rvect_object3_depart, vvect_object3_depart] = propagateOrbit(rvect_object3_arrive,vvect_object3_arrive,object3_arrive_time,object3_depart_time);
-plotOrbit(rvect_object3_arrive, vvect_object3_arrive, [0 2*24*60*60]);
+plotOrbit(rvect_object3_arrive, vvect_object3_arrive, [0 object3_wait_time]);
 
 disp("Object 2 departure burn: " + norm(vsc_object2_depart - vvect_object2_depart) + " km/s")
 disp("Object 3 arrival burn: " + norm(vsc_object3_arrive - vvect_object3_arrive) + " km/s")
@@ -97,9 +100,10 @@ inc_object3 = coe_object3(4);
 RAAN_object3 = coe_object3(3);
 v_object3 = norm(vvect_object3_depart);
 
-rvect_object4_start = [-4.299031324314775e2 1.923690022476296e2 7.777323084694023e2];
-vvect_object4_start = [-17.907795963779567 -7.063735680315943 -8.198682991422665];
-% [rvect_object4, vvect_object4] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,object3_depart_time);
+rvect_object4_start = [-6.821074905741718e3;-0.609979433471615e3;2.479233696115208e3];
+vvect_object4_start = [-2.083352744891964;-2.878043758469060;-6.490413688087917];
+
+[rvect_object4_start, vvect_object4_start] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,object3_depart_time);
 
 coe_object4 = vector2coe(rvect_object4_start, vvect_object4_start,mu);
 inc_object4 = coe_object4(4);
@@ -115,8 +119,10 @@ coes_new = [coe_object3(1), coe_object3(2), coe_object4(3), coe_object4(4), coe_
 figure
 plotOrbit(rvect_object3_depart,vvect_object3_depart, [0 2*24*60*60]);
 hold on
-plotOrbit(rvect_orbit3_inc_raan_change, [0 2*24*60*60]);
+plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
 legend("Orbit 3", "Orbit 3 w/ Inc RAAN change")
+title('Inc and RAAN Change')
+grid on
 hold off
 
 % Hohmanns to get on same orbit
@@ -124,17 +130,28 @@ rp = norm(rvect_orbit3_inc_raan_change);
 ra = norm(rvect_object4_start);
  [deltaVtotal,t] = hohmann(rp,ra);
 disp('Hohmanns to Object 4 orbit = ' + string(deltaVtotal) + ' km/s')
+
 time_after_hohmanns = object3_depart_time + t;
 
-[rvect_object4_orbit,vvect_object4_orbit] = r_and_v_of_hohmanns(rvect_orbit3_inc_raan_change,rvect_object4_start);
+[rvect_object4_orbit,vvect_object4_orbit,rvect_t,vvect_t] = r_and_v_of_hohmanns(rvect_orbit3_inc_raan_change,rvect_object4_start);
 [rvect_object4_posthohmann, vvect_object4_posthohmann] = propagateOrbit(rvect_object4_start,vvect_object4_start,epoch,time_after_hohmanns);
 
+figure
+plotOrbit(rvect_orbit3_inc_raan_change,vvect_orbit3_inc_raan_change,[0 2*24*60*60]);
+hold on
+plotOrbit(rvect_object4_start,vvect_object4_start,[0 2*24*60*60]);
+hold on
+plotOrbit(rvect_t,vvect_t,[0 t]);
+legend("Orbit 3 w/ Inc RAAN change","Orbit 4","Hohmann Transfer")
+title('Hohmann Transfer')
+grid on
+hold off
+
+coes_new_object4 = vector2coe(rvect_object4_posthohmann',vvect_object4_posthohmann',mu);
+
 % Phasing maneuver
-% Use period of the fourth object and time since periapse passage
-% then use to find Me and use fourth's objects eccentricty.
-%TA = MA2TA(Me,e)
-% Phasing maneuver
-[deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA)
+[deltaVtotal,t] = phasing_maneuver(rvect_object4_orbit,rvect_object4_posthohmann,coes_new_object4(6),mu);
+disp('Phasing maneuver to Object 4 = ' + string(deltaVtotal) + ' km/s')
 
 function [rPrime, vPrime] = propagateOrbit(r, v, epoch, endTime)
     % Harvey Perkins
@@ -408,7 +425,7 @@ t = T/2; % Transfer time [s]
 t = t/60; % Transfer time [min]
 end
 
-function [rvect,vvect] = r_and_v_of_hohmanns(rvect_object3,rvect_object4)
+function [rvect,vvect,rvect_t,vvect_t] = r_and_v_of_hohmanns(rvect_object3,rvect_object4)
 % First burn
 mu_earth = 98600;
 r1 = norm(rvect_object3);
@@ -432,21 +449,21 @@ end
 
 % Currently editing
 % phasing maneuver - reviewing 
-function [deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA)
+function [deltaVtotal,t] = phasing_maneuver(r_posthohmann,r_object4,TA,mu)
 rp = r_posthohmann;
 ra = r_object4;
 
-h_old = sqrt(2*mu_earth)*sqrt((rp*ra)/(rp+ra));
+h_old = sqrt(2*mu)*sqrt((rp*ra)/(rp+ra));
 ecc_old = (ra-rp)/(ra+rp);
 a_old = (1/2)*(rp+ra);
-T = ((2*pi)/sqrt(mu_earth))*a_old^(3/2);
+T = ((2*pi)/sqrt(mu))*a_old^(3/2);
 true_anomaly = deg2rad(TA);
 E_c = 2*atan(sqrt((1-ecc_old)/(1+ecc_old))*tan(true_anomaly/2));
 t_bc = (T/(2*pi))*(E_c-ecc_old*sin(E_c));
 T2 = T - t_bc;
-a_new = (((sqrt(mu_earth))*T2)/(2*pi))^(2/3);
+a_new = (((sqrt(mu))*T2)/(2*pi))^(2/3);
 rd = 2*a_new - rp;
-h_new = sqrt(2*mu_earth)*sqrt((rp*rd)/(rp+rd));
+h_new = sqrt(2*mu)*sqrt((rp*rd)/(rp+rd));
 
 vp_new_orbit = h_new/rp;
 vp_old_orbit = h_old/rp;

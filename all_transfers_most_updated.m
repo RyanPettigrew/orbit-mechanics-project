@@ -11,10 +11,15 @@ mu = 398600; % km3/s2
  vvect_object1 = [-1.941435016388355; -2.382720492211831; 0.024428097819707];
 
 epoch = 8.856990254250000e+09;
+disp("Mission start time:")
+disp(datetime(epoch/(60*60),'convertfrom','juliandate'))
+
 % Propagate forwards 5 periods plus a bit
 % period object 1 = 8.617e4 seconds
 loiter_time_object1 = 5*8.617e4 + 9*60*60;
 object1_depart_time = epoch + loiter_time_object1;
+disp("Object 1 depart time:")
+disp(datetime(object1_depart_time/(60*60),'convertfrom','juliandate'))
 [rvect_object1_depart, vvect_object1_depart] = propagateOrbit(rvect_object1,vvect_object1,epoch,object1_depart_time);
 figure
 plotOrbit(rvect_object1, vvect_object1, [0 loiter_time_object1]);
@@ -31,7 +36,8 @@ hold on
 
 lamberts12_time = 20.68*60*60; % prev: 20.68
 object2_arrive_time = object1_depart_time + lamberts12_time;
-
+disp("Object 2 arrival time:")
+disp(datetime(object2_arrive_time/(60*60),'convertfrom','juliandate'))
 [rvect_object2_arrive, vvect_object2_arrive] = propagateOrbit(rvect_object2_new,vvect_object2_new,epoch,object2_arrive_time);
 
 % lamberts
@@ -43,6 +49,8 @@ plotOrbit(rvect_object1_depart, vsc_object1_depart, [0 lamberts12_time]);
 % period = 7.436e4
 object2_wait_time = 5*7.436e4 + 11.3*60*60; % prev: 11.3
 object2_depart_time = object2_arrive_time + object2_wait_time;
+disp("Object 2 depart time:")
+disp(datetime(object2_depart_time/(60*60),'convertfrom','juliandate'))
 [rvect_object2_depart, vvect_object2_depart] = propagateOrbit(rvect_object2_arrive,vvect_object2_arrive,object2_arrive_time,object2_depart_time);
 plotOrbit(rvect_object2_arrive, vvect_object2_arrive, [0 object2_wait_time]);
 
@@ -62,6 +70,8 @@ hold on
 
 lamberts23_time = 3.9*60*60; 
 object3_arrive_time = object2_depart_time + lamberts23_time;
+disp("Object 3 arrive time:")
+disp(datetime(object3_arrive_time/(60*60),'convertfrom','juliandate'))
  rvect_object3 = [0.099221289746647e3; -2.495960051500151e3; -6.829798227857773e3];
  vvect_object3 = [7.309683122916486; 1.173315870778262; -0.331602416389682];
 % rvect_object3 = 10^2*[8.762180894975575;2.048550193447096;1.347181696876256];
@@ -78,6 +88,8 @@ hold on
 % period object 3 = 6.190e3
 object3_wait_time = 5*6.190e3;
 object3_depart_time = object3_arrive_time + object3_wait_time;
+disp("object 3 depart time:")
+disp(datetime(object3_depart_time/(60*60),'convertfrom','juliandate'))
 [rvect_object3_depart, vvect_object3_depart] = propagateOrbit(rvect_object3_arrive,vvect_object3_arrive,object3_arrive_time,object3_depart_time);
 plotOrbit(rvect_object3_arrive, vvect_object3_arrive, [0 object3_wait_time]);
 
